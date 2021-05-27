@@ -1,5 +1,6 @@
-
-
+/*
+  是main函数,其实是调用各种接口
+*/
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -10,19 +11,8 @@
 #include "boss.h"
 using namespace std;
 
-
 int main()
 {
-	//Worker* worker = NULL;
-	//worker = new Employee(1, "张三", 1);
-	//worker->showInfo();
-
-	//Worker* manager = new Manager(2, "李四", 2);
-	//manager->showInfo();
-
-	//Worker* boss = new Boss(3, "王五", 3);
-	//boss->showInfo();
-
 	WorkerManager wm;
 
 	int chioce = 0;
@@ -44,7 +34,7 @@ int main()
 			break;
 		case 3:  //删除员工
 			break;
-		case 4:  //修改员工
+		case 4:  //修改员工                          
 			break;
 		case 5:  //查找员工
 			break;
@@ -59,7 +49,6 @@ int main()
 		}
 
 	}
-
 
 	system("pause");
 	return 0;

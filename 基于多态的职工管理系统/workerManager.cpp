@@ -1,26 +1,67 @@
 /*
-
 管理类负责的内容如下：
 	1、与用户的沟通菜单界面
 	2、对职工增删改查的操作
 	3、与文件的读写交互
 
 分离式编译的优势(在函数前面需要加作用域）
-
 */
 
 #include <iostream>
 #include "workerManage.h"
-#include "employee.h"
-#include "manager.h"
-#include "boss.h"
 using namespace std;
 
 WorkerManager::WorkerManager()
 {
-	//初始化属性
-	this->m_EmpNum = 0;
-	this->m_EmpArray = 0;
+	// 1、文件不存在    （初始化的三种方法）
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);  // 写文件
+	if (!ifs.is_open())
+	{
+		cout << "文件不存在" << endl;
+		//初始化属性
+		// 初始化记录人数
+		this->m_EmpNum = 0;
+		// 初始化数组指针
+		this->m_EmpArray = NULL;
+		// 初始化文件是否为空
+		this->m_FileIsEmpty = true;
+		ifs.close();
+		return;
+	}
+
+	// 2、文件存在，数据为空
+	char ch;
+	ifs >> ch;
+	if (ifs.eof())  // 为真，则说明文件为空
+	{
+		cout << "文件为空！" << endl;
+		// 初始化记录人数
+		this->m_EmpNum = 0;
+		// 初始化数组指针
+		this->m_EmpArray = NULL;
+		// 初始化文件是否为空
+		this->m_FileIsEmpty = true;
+		ifs.close();
+		return;
+	}
+
+	// 3、文件存在，并且有数据
+	this->m_EmpNum = this->get_EmpNum();
+	cout << "职工人数为：" << this->m_EmpNum << endl;  // 测试代码
+
+	// 开辟空间
+	this->m_EmpArray = new Worker * [this->m_EmpNum];
+	// 将文件中的数据存到数组中
+	this->init_Emp();
+
+	// 测试代码
+	for (int i = 0; i < this->m_EmpNum; i++)
+	{
+		cout << "职工编号：" << this->m_EmpArray[i]->m_Id << " "
+			<< "姓名：" << this->m_EmpArray[i]->m_Name << " "
+			<< "部门编号：" << this->m_EmpArray[i]->m_DeptId << endl;
+	}
 }
 
 // 显示菜单
@@ -92,14 +133,17 @@ void WorkerManager::Add_Emp()
 			{
 			case 1:
 				worker = new Employee(id, name, 1);
+				break;
 			case 2:
 				worker = new Manager(id, name, 2);
+				break;
 			case 3:
 				worker = new Boss(id, name, 3);
+				break;
 			default:
 				break;
 			}
-			//将创建职工职责，保存到数组中
+			//将创建职工指针，保存到数组中
 			newSpace[this->m_EmpNum + i] = worker;
 		}
 
@@ -114,6 +158,12 @@ void WorkerManager::Add_Emp()
 
 		//提示添加成功
 		cout << "成功添加 " << addNum << "名新员工" << endl;
+
+		// 更新职工不为空
+		this->m_FileIsEmpty = false;
+
+		// 保存数据到文件中
+		this->save();
 	}
 	else
 	{
@@ -125,7 +175,82 @@ void WorkerManager::Add_Emp()
 	system("cls");
 }
 
+//保存文件
+void WorkerManager::save()
+{
+	ofstream ofs;
+	ofs.open(FILENAME, ios::out);  // 写文件
+
+	// 将每个人数据写入到文件中
+	for (int i = 0; i < this->m_EmpNum; i++)
+	{
+		ofs << this->m_EmpArray[i]->m_Id << " "
+			<< this->m_EmpArray[i]->m_Name << " "
+			<< this->m_EmpArray[i]->m_DeptId << endl;
+	}
+
+	// 关闭文件
+	ofs.close();
+}
+
+// 统计文件中人数
+int WorkerManager::get_EmpNum()
+{
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+	int id;
+	string name;
+	int dId;
+
+	int num = 0;
+	while (ifs >> id && ifs >> name && ifs >> dId)
+	{
+		// 统计人数变量
+		num++;
+	}
+	return num;
+}
+
+// 初始化员工
+void WorkerManager::init_Emp()
+{
+	ifstream ifs;
+	ifs.open(FILENAME, ios::in);
+
+	int id;
+	string name;
+	int dId;
+
+	int index = 0;
+	while (ifs >> id && ifs >> name && ifs >>dId)
+	{
+		Worker* worker = NULL;
+		// 根据不同部门的ID创建不同的对象
+		if (dId == 1)  // 普通员工
+		{
+			worker = new Employee(id, name, dId);
+		}
+		else if (dId == 2)  // 经理
+		{
+			worker = new Manager(id, name, dId);
+		}
+		else  // 老板
+		{
+			worker = new Boss(id, name, dId);
+		}
+		this->m_EmpArray[index] = worker;
+		index++;
+	}
+
+	// 关闭文件
+	ifs.close();
+}
+
 WorkerManager::~WorkerManager()
 {
-
+	if (this->m_EmpArray != NULL)
+	{
+		delete[] this->m_EmpArray;
+		this->m_EmpArray = NULL;
+	}
 }
