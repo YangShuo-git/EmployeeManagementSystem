@@ -31,16 +31,22 @@ int main()
 			wm.Add_Emp();
 			break;
 		case 2:  //显示员工
+			wm.Show_Emp();
 			break;
 		case 3:  //删除员工
+			wm.Del_Emp();
 			break;
-		case 4:  //修改员工                          
+		case 4:  //修改员工
+			wm.Mod_Emp();
 			break;
 		case 5:  //查找员工
+			wm.Find_Emp();
 			break;
 		case 6:  //排序员工
+			wm.Sort_Emp();
 			break;
 		case 7:  //清空文件
+			wm.Clean_File();
 			break;
 
 		default:
